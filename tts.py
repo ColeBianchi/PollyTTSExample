@@ -1,4 +1,4 @@
-#Required pip libraries: boto3, playsound
+#Required pip libraries: boto3, audioplayer
 #Author: Cole Bianchi, Amazon AWS
 
 from boto3 import Session
@@ -8,7 +8,7 @@ import os
 import sys
 import subprocess
 from tempfile import gettempdir
-import playsound
+import audioplayer
 
 session = Session(profile_name='default')
 polly = session.client('polly', region_name='us-east-2')
@@ -28,14 +28,17 @@ def play(text):
 					with open(output, 'wb') as file:
 						file.write(stream.read())
 
-					playsound.playsound(output, True)
-				except IOError:
-					print("ERROR: IOError")
-					return "IOERROR"
+					player = audioplayer.AudioPlayer(output)
+					player.play(loop=False, block=True)
+					player.close()
+					
+				except IOError as error:
+					print(error)
+					return error
 
-	except ClientError:
-		print("ERROR: ClientError")
-		return "CLIENTERROR"
-	except BotoCoreError:
-		print("ERROR: BotoCoreError")
-		return "BOTOCOREERROR"
+	except ClientError as error:
+		print(error)
+		return error
+	except BotoCoreError as error:
+		print(error)
+		return error
